@@ -135,6 +135,7 @@ namespace QuickPane.UI
 
             var options = new StackPanel { Margin = new Thickness(0, 0, 24, 0) };
             options.Children.Add(PaneModeBlock(s));
+            options.Children.Add(DialogModeBlock(s));
             options.Children.Add(DockBlock(s));
             options.Children.Add(ProfileTabsBlock(s));
             options.Children.Add(RecentAppsBlock(s));
@@ -381,6 +382,30 @@ namespace QuickPane.UI
             sp.Children.Add(ModeRadio("Inside Explorer window", m == "inside", () => { s.Mode = "inside"; _settings.Save(); }));
             sp.Children.Add(ModeRadio("Beside Explorer window", m == "beside", () => { s.Mode = "beside"; _settings.Save(); }));
             sp.Children.Add(ModeRadio("Off (desktop dock only)", m == "off", () => { s.Mode = "off"; _settings.Save(); }));
+            return sp;
+        }
+
+        /// <summary>How the pane attaches to Open/Save file dialogs, independent of the window Mode
+        /// above. A separate radio group name keeps these from unchecking the window-mode radios,
+        /// which share one WPF RadioButton group via ModeRadio's hardcoded "qpPaneMode".</summary>
+        private FrameworkElement DialogModeBlock(AppSettings s)
+        {
+            var sp = new StackPanel();
+            sp.Children.Add(SubHeading("File dialogs"));
+            string m = (s.DialogMode ?? "same").ToLowerInvariant();
+            sp.Children.Add(ModeRadioGroup("qpDialogMode", "Same as Explorer windows", m == "same", () => { s.DialogMode = "same"; _settings.Save(); }));
+            sp.Children.Add(ModeRadioGroup("qpDialogMode", "Beside the dialog", m == "beside", () => { s.DialogMode = "beside"; _settings.Save(); }));
+            sp.Children.Add(ModeRadioGroup("qpDialogMode", "Off", m == "off", () => { s.DialogMode = "off"; _settings.Save(); }));
+            sp.Children.Add(new TextBlock
+            {
+                Text = "Off also hides App Folders and \"Always start here\", which only appear in dialog panes.",
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 320,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 6, 0, 0),
+                FontSize = 11,
+                Foreground = UiHelpers.AppBrush("TextSecondary")
+            });
             return sp;
         }
 

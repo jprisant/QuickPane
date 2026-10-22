@@ -167,6 +167,12 @@ namespace QuickPane.Models
         [DataMember(Name = "mode", Order = 4, EmitDefaultValue = false)]
         public string Mode { get; set; } = "inside";
 
+        // How the pane attaches to Open/Save file dialogs, independent of Mode above. "same" (default)
+        // keeps today's behavior and follows Mode; "beside" and "off" override it for dialogs only.
+        // Off also hides App Folders and "Always start here", which exist only in dialog panes.
+        [DataMember(Name = "dialogMode", Order = 13, EmitDefaultValue = false)]
+        public string DialogMode { get; set; } = "same";
+
         // Optional extra: a screen-edge dock (AppBar) independent of the window pane.
         [DataMember(Name = "desktopDock", Order = 5, EmitDefaultValue = false)]
         public bool DesktopDock { get; set; }
@@ -295,6 +301,8 @@ namespace QuickPane.Models
             if (string.IsNullOrWhiteSpace(GroupsPath)) GroupsPath = @"%APPDATA%\QuickPane\Groups";
             var m = (Mode ?? "").Trim().ToLowerInvariant();
             Mode = (m == "beside") ? "beside" : (m == "off") ? "off" : "inside"; // migrate old "inwindow" to "inside"
+            var dm = (DialogMode ?? "").Trim().ToLowerInvariant();
+            DialogMode = (dm == "beside") ? "beside" : (dm == "off") ? "off" : "same";
 
             // Profiles: migrate a pre-profiles settings file into one profile built from the top fields.
             if (Profiles == null) Profiles = new List<Profile>();
