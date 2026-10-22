@@ -44,6 +44,8 @@ The tests live in `tests/QuickPane.Tests`, an SDK-style `net48` NUnit project. I
 
 `.github/workflows/ci.yml` runs on every push to `main` and on every pull request. It calls the same two scripts on `windows-latest` and keeps the built exe as a workflow artifact. CI cannot exercise the app itself: Explorer windows, window hooks, and file dialogs need a real desktop.
 
+`main` is protected. A change reaches it only through a pull request whose `build-and-test` check passed, and the rule applies to administrators too. No approving review is required, because GitHub does not let authors approve their own pull requests. Force-pushes to `main` and deleting `main` are blocked, and merged branches are deleted automatically. The rule lives in the repository's Settings, under Branches.
+
 ## Running a development build
 
 Only one copy of QuickPane runs at a time, because a single-instance mutex guards it. A development build therefore replaces the installed copy while it runs.
@@ -81,7 +83,7 @@ Windows Sandbox makes a safe test bed for UI checks. It is a disposable desktop 
 
 The `upstream` remote points at `lso2/QuickPane`, and `origin` points at this fork.
 
-- **Sync:** `git fetch upstream`, then `git merge upstream/main` into `main`. Upstream ships large monthly commits, so expect conflicts where the fork has changed the same lines.
+- **Sync:** `git fetch upstream`, then create a branch from `main`, run `git merge upstream/main` on it, and open a pull request. `main` accepts no direct pushes. Upstream ships large monthly commits, so expect conflicts where the fork has changed the same lines.
 - **Report first:** a bug that affects upstream gets an upstream issue before or alongside the fork's fix.
 - **Upstream pull requests:** cut a branch from `upstream/main` and cherry-pick only the commit for that change. Never offer the fork's `main`, which carries fork-only commits such as CI, the scripts, and these docs.
 - **Fork-only commits:** the commit that points the update check at this fork must never go upstream. When merging upstream, keep the fork's repository in `UpdateService`'s two URLs.

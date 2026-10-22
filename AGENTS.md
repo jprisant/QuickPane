@@ -25,6 +25,7 @@ A change is not done until the build succeeds with no errors and every test pass
 - **Tests touch only their own temporary directory.** Never use `SettingsStore`'s default constructor, never call `GroupStore.Recycle` or `DeleteTab` on real folders, and never show a window.
 - **No personal data** in code, comments, tests, commit messages, issues, or pull requests. Use invented examples such as `C:\Demo\Projects`. Never commit screenshots of a real desktop.
 - **Never bypass git hooks** with `--no-verify`. If a hook blocks a commit, fix the content.
+- **Never weaken branch protection.** `main` accepts changes only through a pull request whose `build-and-test` check passed. Work on a branch, and never change or remove that rule.
 - **No new NuGet packages in the app project** without the maintainer's agreement.
 - **Do not push, open pull requests, or file issues** unless the maintainer asks.
 
