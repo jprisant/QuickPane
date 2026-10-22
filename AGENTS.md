@@ -1,0 +1,55 @@
+# Instructions for coding agents
+
+This file is for AI coding agents working in this repository, such as Claude Code or Codex. People should start with [README.md](README.md) and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), which hold the same rules with more background.
+
+## What this repository is
+
+QuickPane is a Windows tray app in C# 7.3, .NET Framework 4.8, and WPF, built for x64 only. It embeds a pinned-folders pane inside File Explorer windows and Open/Save dialogs. This repository is a fork of `lso2/QuickPane`: the `upstream` remote is the original, and `origin` is the fork.
+
+## Commands
+
+| Task | Command |
+|---|---|
+| Build | `pwsh -File scripts/build.ps1` |
+| Build and test | `pwsh -File scripts/test.ps1` |
+| Test only | `pwsh -File scripts/test.ps1 -NoBuild` |
+
+A change is not done until the build succeeds with no errors and every test passes.
+
+## Hard rules
+
+- **Never run `QuickPane.exe`** on a developer's desktop unless the developer asks. A single-instance mutex means a second copy, or `--exit`, acts on the developer's own running copy. Use an isolated environment such as Windows Sandbox for UI checks.
+- **C# 7.3 only.** No switch expressions, `is not` patterns, nullable reference types, `using` declarations, ranges or indices, records, `init`, or target-typed `new()`.
+- **Register new files.** `QuickPane/QuickPane.csproj` is a legacy project that lists every file. A new `.cs` file needs a `<Compile Include="..." />` line.
+- **Keep the test project out of `QuickPane.sln`.** Visual Studio 2019's MSBuild cannot load it.
+- **Tests touch only their own temporary directory.** Never use `SettingsStore`'s default constructor, never call `GroupStore.Recycle` or `DeleteTab` on real folders, and never show a window.
+- **No personal data** in code, comments, tests, commit messages, issues, or pull requests. Use invented examples such as `C:\Demo\Projects`. Never commit screenshots of a real desktop.
+- **Never bypass git hooks** with `--no-verify`. If a hook blocks a commit, fix the content.
+- **No new NuGet packages in the app project** without the maintainer's agreement.
+- **Do not push, open pull requests, or file issues** unless the maintainer asks.
+
+## How to make a change
+
+1. Read the code around the change, and match its naming, idioms, and comment style. Comments explain why, often citing the bug that forced a choice.
+2. Keep one change per commit, so it can be cherry-picked onto a branch cut from `upstream/main`.
+3. Put testable decisions in `internal static` methods, and cover them in `tests/QuickPane.Tests`.
+4. Run `scripts/test.ps1` before each commit.
+5. Record user-visible changes in `CHANGELOG.md` under the next fork version.
+
+## Where things are
+
+| Folder | Contents |
+|---|---|
+| `QuickPane/Explorer/` | Attaching the pane to Explorer windows and file dialogs, and tracking recent folders. |
+| `QuickPane/Interop/` | Win32 declarations, window-event hooks, and dialog and Explorer navigation. |
+| `QuickPane/Services/` | Settings, groups and pins on disk, recent items, updates, hotkeys, logging, and SSH mounts. |
+| `QuickPane/UI/` | The pane's sections, the settings panel, prompts, and the folder picker. |
+| `QuickPane/Models/Models.cs` | The settings and group data model. |
+| `tests/QuickPane.Tests/` | Unit tests. |
+| `scripts/` | Build and test scripts. |
+
+The "Traps in the code" table in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) lists the behaviors that have caused bugs, such as Windows 11 tabs, keyboard focus, and file dialogs. Read it before changing anything in `Explorer/` or `Interop/`.
+
+## Local-only notes
+
+A developer may keep an untracked `CLAUDE.md` with machine-specific notes. It imports this file. Never commit it.
