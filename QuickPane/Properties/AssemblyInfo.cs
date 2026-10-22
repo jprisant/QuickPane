@@ -1,6 +1,11 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
+
+// Lets the test project reach internal classes (SettingsStore's test constructor, TryParseTag,
+// BuildCommandLine) without reflection. The assembly is not strong-named, so no public key is needed.
+[assembly: InternalsVisibleTo("QuickPane.Tests")]
 
 [assembly: AssemblyTitle("QuickPane")]
 [assembly: AssemblyDescription("Explorer sidebar replacement for Windows 10 LTSC")]

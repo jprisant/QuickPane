@@ -37,8 +37,16 @@ namespace QuickPane.Services
         private readonly string _file;
 
         public SettingsStore()
+            : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "QuickPane"))
         {
-            _dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "QuickPane");
+        }
+
+        /// <summary>Points the store at an arbitrary folder instead of the real %APPDATA%\QuickPane.
+        /// Exists so tests can round-trip settings in a temp directory without touching the user's own
+        /// settings file.</summary>
+        internal SettingsStore(string dir)
+        {
+            _dir = dir;
             _file = Path.Combine(_dir, "settings.json");
         }
 

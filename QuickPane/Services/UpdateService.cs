@@ -163,7 +163,7 @@ namespace QuickPane.Services
         /// "v3.9.0" and as "QuickPaneSetup-3.7.0-release", so anything that assumes the tag starts with
         /// the number reads the second one as no version at all.
         /// </summary>
-        private static bool TryParseTag(string tag, out Version version)
+        internal static bool TryParseTag(string tag, out Version version)
         {
             version = null;
             if (string.IsNullOrWhiteSpace(tag)) return false;
