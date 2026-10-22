@@ -8,11 +8,20 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: microsoft/setup-msbuild@v2
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+      # The same scripts a developer runs locally, so CI and local builds cannot drift apart.
       - name: Build the app
-        run: msbuild QuickPane/QuickPane.csproj /restore /p:Configuration=Release /p:Platform=x64 /m /nologo
+        shell: pwsh
+        run: ./scripts/build.ps1 -Configuration Release
       - name: Run the tests
-        run: dotnet test tests/QuickPane.Tests/QuickPane.Tests.csproj -c Release --nologo
+        shell: pwsh
+        run: ./scripts/test.ps1 -Configuration Release -NoBuild
+      - name: Keep the built exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickPane-x64-Release
+          path: |
+            QuickPane/bin/x64/Release/QuickPane.exe
+            QuickPane/bin/x64/Release/QuickPane.exe.config
