@@ -70,7 +70,7 @@ Windows Sandbox makes a safe test bed for UI checks. It is a disposable desktop 
 | Area | What to know |
 |---|---|
 | Inside mode | `ExplorerWindow` hosts the pane as a child window of Explorer's `CabinetWClass` and shifts the tab content right with `SetWindowPos`. |
-| Windows 11 tabs | Each Explorer tab has its own `ShellTabWindowClass` child, and the active one is on top. `ExplorerWindow` resolves only the first one, so other tabs are never shifted. See lso2/QuickPane#3. |
+| Windows 11 tabs | Each Explorer tab has its own `ShellTabWindowClass` child. All of them stay visible, with the active one on top, and Explorer resets every tab to full width when a tab opens or closes. `ExplorerWindow` therefore walks all of them live on every layout pass. Never cache one tab's handle, because tabs open and close while the window lives. See #4. |
 | Keyboard focus | The embedded pane is a child of another process's window, so it cannot take keyboard focus normally. Typing happens in separate top-level windows such as `TextPrompt`. See lso2/QuickPane#4. |
 | File dialogs | `DialogPaneWatcher` attaches panes to standard `#32770` dialogs, inside or beside. An app whose dialog fights the inside layout is moved to beside for the rest of the session. QuickPane's own pickers receive a pane too. |
 | Folder picker | WinForms `FolderBrowserDialog` on .NET Framework 4.8 is the legacy tree dialog. Use `UI/FolderPicker.cs`, which wraps the modern `IFileOpenDialog`. |

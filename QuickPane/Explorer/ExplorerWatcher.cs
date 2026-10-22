@@ -133,6 +133,17 @@ namespace QuickPane.Explorer
             }
 
             // CREATE or SHOW
+            // A new Windows 11 tab in a window we already hold. Explorer sizes a new tab to full width as
+            // it creates and activates it, so lay it out now and hold the split briefly while it settles.
+            ExplorerWindow owner;
+            IntPtr parent = NM.GetParent(hwnd);
+            if (parent != IntPtr.Zero && _windows.TryGetValue(parent, out owner) && owner.IsContentHost(hwnd))
+            {
+                owner.ApplyLayout();
+                Burst();
+                return;
+            }
+
             if (!IsExplorerFolder(hwnd)) return;
             if (_windows.ContainsKey(hwnd)) return;
             QueueAttach(hwnd);
@@ -149,13 +160,16 @@ namespace QuickPane.Explorer
                 return;
             }
 
-            // Explorer resets its content host to full width when the window activates or resizes,
-            // which is the source of the flash on focus. Catch that move on the content host itself and
-            // correct it immediately, before the next sweep, so the shift looks instant.
-            foreach (var w in _windows.Values)
-            {
-                if (w.ContentHost == hwnd) { w.ApplyLayout(); break; }
-            }
+            // Explorer resets a content host to full width when the window activates or resizes, which
+            // is the source of the flash on focus, and a new Windows 11 tab starts at full width. Catch
+            // that move on the host itself and correct it immediately, before the next sweep, so the
+            // shift looks instant. Location events fire system-wide, so the cheap parent lookup comes
+            // first and the class check runs only for children of a window we hold.
+            if (_windows.Count == 0) return;
+            ExplorerWindow owner;
+            IntPtr parent = NM.GetParent(hwnd);
+            if (parent != IntPtr.Zero && _windows.TryGetValue(parent, out owner) && owner.IsContentHost(hwnd))
+                owner.ApplyLayout();
         }
 
         private void OnForegroundEvent(uint eventType, IntPtr hwnd, int idObject, int idChild, uint thread)

@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- In a Windows 11 Explorer window with more than one tab, only one tab made room for the pane. Every other tab stayed at full width, so either the pane covered Explorer's navigation pane or the tab covered the pane. Every tab now makes room, including tabs opened later, and the layout keeps working after the first tab is closed ([#4](https://github.com/jprisant/QuickPane/issues/4), [lso2/QuickPane#3](https://github.com/lso2/QuickPane/issues/3)).
 - The pane showed its profile row even with only one profile, as a lone "Profile 1" chip that switched nothing. The row now appears once a second profile exists ([#5](https://github.com/jprisant/QuickPane/issues/5)).
 
 ## [3.10.0.1] - 2026-10-21
