@@ -7,8 +7,8 @@ jobs:
   build-and-test:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
       # The same scripts a developer runs locally, so CI and local builds cannot drift apart.
@@ -19,7 +19,7 @@ jobs:
         shell: pwsh
         run: ./scripts/test.ps1 -Configuration Release -NoBuild
       - name: Keep the built exe
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: QuickPane-x64-Release
           path: |
