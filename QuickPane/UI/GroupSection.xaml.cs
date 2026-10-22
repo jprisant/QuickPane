@@ -789,7 +789,13 @@ namespace QuickPane.UI
             try
             {
                 if (pin == null || string.IsNullOrEmpty(pin.LinkPath)) return;
-                var typed = TextPrompt.Ask("Edit path", pin.TargetPath ?? "");
+                // IsFile comes from the background probe cache (see LoadPins), never a live disk check
+                // here, so choosing the picker never risks the same input-queue freeze that drove that
+                // design in the first place.
+                Func<string, string> browse = pin.IsFile
+                    ? (Func<string, string>)BrowseForFile
+                    : BrowseForFolder;
+                var typed = TextPrompt.Ask("Edit path", pin.TargetPath ?? "", browse);
                 if (typed == null) return;
                 typed = typed.Trim().Trim('"');
                 if (typed.Length == 0) return;
@@ -996,6 +1002,44 @@ namespace QuickPane.UI
         {
             var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Pick a file to pin" };
             return dlg.ShowDialog() == true ? dlg.FileName : null;
+        }
+
+        // ---- Edit path Browse callbacks ----
+        private static string BrowseForFolder(string current)
+        {
+            return FolderPicker.Pick("Pick a folder", NearestExistingFolder(current));
+        }
+
+        private static string BrowseForFile(string current)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Pick a file" };
+            // GetDirectoryName throws on an empty string or on stray invalid characters, both of which
+            // the text box can hold if the user cleared it or typed something odd before clicking
+            // Browse, so the parent folder is computed defensively rather than trusted outright.
+            string parent = null;
+            try { parent = System.IO.Path.GetDirectoryName(current ?? string.Empty); } catch { }
+            var dir = NearestExistingFolder(parent);
+            if (!string.IsNullOrEmpty(dir)) dlg.InitialDirectory = dir;
+            return dlg.ShowDialog() == true ? dlg.FileName : null;
+        }
+
+        /// <summary>Walk up from a path that may no longer exist to the nearest ancestor folder that
+        /// does, so a picker opens somewhere useful instead of wherever it defaults to. Skipped for a
+        /// UNC path: probing an unreachable share one directory at a time can hang far longer than a
+        /// user will wait for a dialog to open.</summary>
+        private static string NearestExistingFolder(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+            if (path.StartsWith(@"\\", StringComparison.Ordinal))
+                return System.IO.Directory.Exists(path) ? path : null;
+            try
+            {
+                var dir = path;
+                while (!string.IsNullOrEmpty(dir) && !System.IO.Directory.Exists(dir))
+                    dir = System.IO.Path.GetDirectoryName(dir);
+                return string.IsNullOrEmpty(dir) ? null : dir;
+            }
+            catch { return null; }
         }
 
         private static void OpenPinFile(PinnedFolder pin)

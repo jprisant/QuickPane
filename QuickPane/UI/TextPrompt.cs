@@ -15,8 +15,10 @@ namespace QuickPane.UI
     /// </summary>
     internal static class TextPrompt
     {
-        /// <summary>Returns the entered text, or null if cancelled or left blank.</summary>
-        public static string Ask(string title, string initial = "")
+        /// <summary>Returns the entered text, or null if cancelled or left blank. When
+        /// <paramref name="browse"/> is given, the prompt also shows a "Browse..." button that calls it
+        /// with the current text and, for a non-null result, replaces the text with it.</summary>
+        public static string Ask(string title, string initial = "", Func<string, string> browse = null)
         {
             bool dark = ReadDark();
             var bg = dark ? Color.FromRgb(0x24, 0x24, 0x24) : Color.FromRgb(0xF7, 0xF7, 0xF7);
@@ -58,18 +60,37 @@ namespace QuickPane.UI
             stack.Children.Add(box);
 
             string result = null;
+            var footer = new Grid { Margin = new Thickness(0, 12, 0, 0) };
+            footer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            if (browse != null)
+            {
+                var browseBtn = MakeButton("Browse...", fg, border);
+                browseBtn.HorizontalAlignment = HorizontalAlignment.Left;
+                browseBtn.Click += (s, e) =>
+                {
+                    var picked = browse(box.Text);
+                    if (picked != null) { box.Text = picked; box.CaretIndex = box.Text.Length; box.Focus(); }
+                };
+                Grid.SetColumn(browseBtn, 0);
+                footer.Children.Add(browseBtn);
+            }
+
             var buttons = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin = new Thickness(0, 12, 0, 0)
+                HorizontalAlignment = HorizontalAlignment.Right
             };
             var ok = MakeButton("OK", fg, border);
             var cancel = MakeButton("Cancel", fg, border);
             cancel.Margin = new Thickness(0, 0, 8, 0);
             buttons.Children.Add(cancel);
             buttons.Children.Add(ok);
-            stack.Children.Add(buttons);
+            Grid.SetColumn(buttons, 1);
+            footer.Children.Add(buttons);
+
+            stack.Children.Add(footer);
             shell.Child = stack;
             win.Content = shell;
 
