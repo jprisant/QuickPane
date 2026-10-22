@@ -2,7 +2,7 @@
 
 ## [3.10.0.1] - 2026-10-21
 
-The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork releases add a fourth version number, so upstream's next release still reads as newer.
+The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork releases add a fourth version number to the upstream version they build on.
 
 ### Added
 - A "File dialogs" setting on the Pane tab, so the pane in Open and Save dialogs can follow Explorer windows, sit beside the dialog, or stay off.
@@ -13,6 +13,8 @@ The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork
 
 ### Changed
 - "Add folder..." and the groups-folder "..." button open the modern Explorer-style folder picker instead of the legacy "Browse For Folder" tree ([lso2/QuickPane#2](https://github.com/lso2/QuickPane/issues/2)).
+- The update notice in the Settings footer checks this fork's releases instead of upstream's, so it never offers an upstream installer that would replace the fork's fixes. Until the fork has a published release, the footer reads "Up to date" instead of "Update check failed".
+- The update notice shows a fork release's full four-part version, such as 3.10.0.2, instead of dropping the fourth part.
 
 ### Fixed
 - A group with more than one tab had no way to add a folder or file from a tab's menu. The tab menu now has "Add folder..." and "Add file...", and the pin lands in that tab ([lso2/QuickPane#1](https://github.com/lso2/QuickPane/issues/1)).

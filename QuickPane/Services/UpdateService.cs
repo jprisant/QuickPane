@@ -42,8 +42,11 @@ namespace QuickPane.Services
     /// </summary>
     internal static class UpdateService
     {
-        private const string LatestReleaseApi = "https://api.github.com/repos/lso2/QuickPane/releases/latest";
-        private const string ReleasesPage = "https://github.com/lso2/QuickPane/releases/latest";
+        // The fork's own releases, not upstream's. Offering upstream's installer to someone running a
+        // fork build is a downgrade: it replaces the fork's fixes until the fork merges and releases.
+        // `releases/latest` skips drafts and pre-releases, so fork releases must be published as full ones.
+        private const string LatestReleaseApi = "https://api.github.com/repos/jprisant/QuickPane/releases/latest";
+        private const string ReleasesPage = "https://github.com/jprisant/QuickPane/releases/latest";
 
         /// <summary>The running build's version, from the assembly rather than a constant.</summary>
         public static Version Current
@@ -62,11 +65,19 @@ namespace QuickPane.Services
         /// <summary>"3.9.0", trimmed of a trailing zero revision so it reads like the release tag.</summary>
         public static string CurrentDisplay
         {
-            get
-            {
-                var v = Current;
-                return v.Revision > 0 ? v.ToString(4) : v.ToString(3);
-            }
+            get { return Display(Current); }
+        }
+
+        /// <summary>
+        /// A version as its release tag spells it: "3.10.0" upstream, "3.10.0.1" for a fork build.
+        /// A plain ToString(3) drops the fork's fourth part, so a newer fork release read as the version
+        /// already running; and it throws on a two-part tag such as "v3.11", which TryParseTag accepts.
+        /// </summary>
+        internal static string Display(Version v)
+        {
+            if (v == null) return "";
+            if (v.Revision > 0) return v.ToString(4);
+            return v.Build >= 0 ? v.ToString(3) : v.ToString(2);
         }
 
         /// <summary>Ask GitHub for the latest release on the worker, then hand the answer to
@@ -125,12 +136,25 @@ namespace QuickPane.Services
                 r.DownloadUrl = PickDownload(release);
                 return r;
             }
+            catch (WebException ex) when (IsNotFound(ex))
+            {
+                // A repository with no published full release answers `releases/latest` with 404. Nothing
+                // newer exists then, so the footer says "Up to date" rather than "Update check failed".
+                Log.Info("update check: no published release yet.");
+                return r;
+            }
             catch (Exception ex)
             {
                 Log.Error("check for updates", ex);
                 r.Error = ex.Message;
                 return r;
             }
+        }
+
+        private static bool IsNotFound(WebException ex)
+        {
+            var resp = ex.Response as HttpWebResponse;
+            return resp != null && resp.StatusCode == HttpStatusCode.NotFound;
         }
 
         /// <summary>The installer if the release ships one, else the release page.</summary>

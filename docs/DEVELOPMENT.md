@@ -74,7 +74,8 @@ Windows Sandbox makes a safe test bed for UI checks. It is a disposable desktop 
 | Folder picker | WinForms `FolderBrowserDialog` on .NET Framework 4.8 is the legacy tree dialog. Use `UI/FolderPicker.cs`, which wraps the modern `IFileOpenDialog`. |
 | Deleting | `GroupStore.Recycle` sends a folder to the Recycle Bin. Use it, never `Directory.Delete`, for anything that holds a user's pins. |
 | Settings UI | The Settings tab bodies expose no controls to UI Automation, so screen readers and UI-test tools cannot see them. New controls should set `AutomationProperties.Name`. |
-| Versions | `UpdateService.Current` reads the assembly version, and the Settings footer shows four parts when the fourth is not zero. |
+| Versions | `UpdateService.Current` reads the assembly version. `UpdateService.Display` spells any version the way its tag does, with four parts when the fourth is not zero. Use it, never `Version.ToString(3)`, which drops a fork build's fourth part. |
+| Update check | `UpdateService` asks GitHub for this fork's `releases/latest`, which skips drafts and pre-releases. A 404 means no published release yet and reads as "Up to date". |
 
 ## Working with upstream
 
@@ -83,6 +84,7 @@ The `upstream` remote points at `lso2/QuickPane`, and `origin` points at this fo
 - **Sync:** `git fetch upstream`, then `git merge upstream/main` into `main`. Upstream ships large monthly commits, so expect conflicts where the fork has changed the same lines.
 - **Report first:** a bug that affects upstream gets an upstream issue before or alongside the fork's fix.
 - **Upstream pull requests:** cut a branch from `upstream/main` and cherry-pick only the commit for that change. Never offer the fork's `main`, which carries fork-only commits such as CI, the scripts, and these docs.
+- **Fork-only commits:** the commit that points the update check at this fork must never go upstream. When merging upstream, keep the fork's repository in `UpdateService`'s two URLs.
 
 ## Releasing the fork
 
@@ -91,7 +93,7 @@ The `upstream` remote points at `lso2/QuickPane`, and `origin` points at this fo
 3. Merge to `main` through a pull request with green CI.
 4. Build from `main` with `scripts/test.ps1`.
 5. Zip `QuickPane.exe` and `QuickPane.exe.config`, and record the SHA-256 of each file in `SHA256SUMS.txt`.
-6. Create a **draft** GitHub release for tag `v<version>` with the zip, the checksums, and notes taken from the changelog. A draft stays private and creates no tag.
-7. Test the build on a real desktop, then publish the draft.
+6. Create a **draft** GitHub release for tag `v<version>` with the zip, the checksums, and notes taken from the changelog. A draft stays private and creates no tag. Check that the draft's tag name is `v<version>`, not `untagged-...`, or publishing creates the wrong tag.
+7. Test the build on a real desktop, then publish the draft as a full release, not a pre-release. The in-app update check reads `releases/latest`, which never returns a pre-release.
 
 The binaries are not code-signed. To install a fork build over an installed copy, close QuickPane with `--exit` and replace `QuickPane.exe` in `%LOCALAPPDATA%\QuickPane`. Add/Remove Programs keeps showing the installed version until an installer built from this fork is used.
