@@ -103,6 +103,12 @@ namespace QuickPane.Interop
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
+        // The window active on the calling thread's own message queue. WinForms' CommonDialog uses this
+        // (not GetForegroundWindow) to pick an owner when none is given explicitly, which is what makes
+        // a modal dialog raised from our own top-level window come up owned by that window.
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetActiveWindow();
+
         [DllImport("user32.dll")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 

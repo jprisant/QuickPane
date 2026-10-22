@@ -1168,10 +1168,9 @@ namespace QuickPane.UI
             browse.Margin = new Thickness(4, 0, 0, 0);
             browse.Click += (a, b) =>
             {
-                using (var dlg = new WinForms.FolderBrowserDialog())
-                {
-                    if (dlg.ShowDialog() == WinForms.DialogResult.OK) { box.Text = dlg.SelectedPath; SetProfileFolder(index, dlg.SelectedPath); }
-                }
+                var start = Environment.ExpandEnvironmentVariables(p.GroupsPath);
+                var picked = FolderPicker.Pick("Pick a groups folder", start);
+                if (!string.IsNullOrEmpty(picked)) { box.Text = picked; SetProfileFolder(index, picked); }
             };
             Grid.SetColumn(browse, 1); row.Children.Add(browse);
             return row;

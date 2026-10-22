@@ -987,13 +987,9 @@ namespace QuickPane.UI
             return mi;
         }
 
-        private static string PickFolder()
+        private static string PickFolder(string startFolder = null)
         {
-            using (var dlg = new WinForms.FolderBrowserDialog())
-            {
-                dlg.Description = "Pick a folder to pin";
-                return dlg.ShowDialog() == WinForms.DialogResult.OK ? dlg.SelectedPath : null;
-            }
+            return FolderPicker.Pick("Pick a folder to pin", startFolder);
         }
 
         private static string PickFile()
