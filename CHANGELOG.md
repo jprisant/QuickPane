@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.10.0.1] - 2026-10-21
+
+The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork releases add a fourth version number, so upstream's next release still reads as newer.
+
+### Added
+- A "File dialogs" setting on the Pane tab, so the pane in Open and Save dialogs can follow Explorer windows, sit beside the dialog, or stay off.
+- A "Browse..." button in the "Edit path" prompt, which opens a folder or file picker at the pin's current target.
+- A unit-test project in `tests/QuickPane.Tests`, run with `scripts/test.ps1`.
+- Build and test scripts in `scripts/` that work with or without the .NET Framework 4.8 targeting pack installed.
+- A GitHub Actions workflow that builds the app and runs the tests on every push and pull request.
+
+### Changed
+- "Add folder..." and the groups-folder "..." button open the modern Explorer-style folder picker instead of the legacy "Browse For Folder" tree ([lso2/QuickPane#2](https://github.com/lso2/QuickPane/issues/2)).
+
+### Fixed
+- A group with more than one tab had no way to add a folder or file from a tab's menu. The tab menu now has "Add folder..." and "Add file...", and the pin lands in that tab ([lso2/QuickPane#1](https://github.com/lso2/QuickPane/issues/1)).
+- "Delete tab" erased the tab and its pins immediately. It now asks first when the tab has pins, and sends the tab's folder to the Recycle Bin ([lso2/QuickPane#5](https://github.com/lso2/QuickPane/issues/5)).
+
 ## [3.10.0] - 2026-09-14
 
 ### Added
