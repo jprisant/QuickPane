@@ -1,0 +1,18 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build the app
+        run: msbuild QuickPane/QuickPane.csproj /restore /p:Configuration=Release /p:Platform=x64 /m /nologo
+      - name: Run the tests
+        run: dotnet test tests/QuickPane.Tests/QuickPane.Tests.csproj -c Release --nologo
