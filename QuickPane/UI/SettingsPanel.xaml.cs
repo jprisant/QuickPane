@@ -469,6 +469,16 @@ namespace QuickPane.UI
             sp.Children.Add(SubHeading("Profile tabs"));
             sp.Children.Add(ModeCheck("Show profiles tab row", s.ShowProfileTabs, on => { s.ShowProfileTabs = on; _settings.Save(); }));
             sp.Children.Add(ModeCheck("Auto-hide (slide out on hover)", s.ProfileTabsAutoHide, on => { s.ProfileTabsAutoHide = on; _settings.Save(); }));
+            sp.Children.Add(new TextBlock
+            {
+                Text = "The row appears once there are two or more profiles.",
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 320,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(0, 6, 0, 0),
+                FontSize = 11,
+                Foreground = UiHelpers.AppBrush("TextSecondary")
+            });
             return sp;
         }
 
