@@ -764,6 +764,12 @@ namespace QuickPane.UI
             var menu = new ContextMenu();
             menu.Items.Add(Item("Rename tab", () => RenameTab(tab)));
             menu.Items.Add(new Separator());
+            // These land in the tab that was right-clicked, not the group's active tab: a group with
+            // several tabs otherwise has no way to add a pin anywhere but the narrow strip past the
+            // last tab, which always targets whichever tab happened to be active.
+            menu.Items.Add(Item("Add folder...", () => { var p = PickFolder(); if (!string.IsNullOrEmpty(p)) App.Groups.AddPin(tab, p); }));
+            menu.Items.Add(Item("Add file...", () => { var p = PickFile(); if (!string.IsNullOrEmpty(p)) App.Groups.AddPin(tab, p); }));
+            menu.Items.Add(new Separator());
             menu.Items.Add(Item("Move tab left", () => App.Groups.MoveTab(group, tab, -1)));
             menu.Items.Add(Item("Move tab right", () => App.Groups.MoveTab(group, tab, +1)));
             menu.Items.Add(Item("Make tab its own group", () => App.Groups.MoveTabToNewGroup(group, tab)));
