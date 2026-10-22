@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+- The pane showed its profile row even with only one profile, as a lone "Profile 1" chip that switched nothing. The row now appears once a second profile exists ([#5](https://github.com/jprisant/QuickPane/issues/5)).
+
 ## [3.10.0.1] - 2026-10-21
 
 The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork releases add a fourth version number to the upstream version they build on.
