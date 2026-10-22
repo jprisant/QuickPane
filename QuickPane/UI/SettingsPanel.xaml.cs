@@ -1732,8 +1732,8 @@ namespace QuickPane.UI
                 if (!string.IsNullOrEmpty(r.Error)) { status.Text = "Update check failed"; status.ToolTip = r.Error; return; }
                 if (!r.Available) { status.Text = "Up to date"; return; }
 
-                status.Text = "Version " + r.Latest.ToString(3) + " is available";
-                download.Content = "Download " + r.Latest.ToString(3);
+                status.Text = "Version " + UpdateService.Display(r.Latest) + " is available";
+                download.Content = "Download " + UpdateService.Display(r.Latest);
                 download.ToolTip = r.DownloadUrl;
                 download.Visibility = Visibility.Visible;
                 var url = r.DownloadUrl;

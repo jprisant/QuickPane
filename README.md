@@ -7,7 +7,7 @@
 ![Version](https://img.shields.io/badge/Version-3.10.0-success.svg)
 ![License](https://img.shields.io/badge/License-MIT-orange.svg)
 
-> **About this fork.** This is a fork of [lso2/QuickPane](https://github.com/lso2/QuickPane). It adds fixes that were first reported upstream as issues, plus unit tests and CI. Fork versions carry a fourth number (for example 3.10.0.1), and [CHANGELOG.md](CHANGELOG.md) lists what each one changes. To build from source, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). The in-app update notice still checks upstream's releases, so installing one replaces this fork's build. Everything below this note is upstream's README.
+> **About this fork.** This is a fork of [lso2/QuickPane](https://github.com/lso2/QuickPane). It adds fixes that were first reported upstream as issues, plus unit tests and CI. Fork versions carry a fourth number (for example 3.10.0.1), and [CHANGELOG.md](CHANGELOG.md) lists what each one changes. To build from source, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). The in-app update notice checks this fork's releases, not upstream's. Everything below this note is upstream's README.
 
 A folder sidebar for Windows File Explorer. QuickPane embeds a pinned-folders pane inside every Explorer window, so your groups, recent locations, drives, network shares, and WSL distros travel with the window you are already using. Pin it inside the window, float it beside the window, or run it as a slim screen-edge dock. Everything runs locally as a single tray app, no code is ever injected into Explorer, and all data stays in plain files under your user profile.
 
