@@ -764,11 +764,17 @@ namespace QuickPane.UI
             var menu = new ContextMenu();
             menu.Items.Add(Item("Rename tab", () => RenameTab(tab)));
             menu.Items.Add(new Separator());
+            // These land in the tab that was right-clicked, not the group's active tab: a group with
+            // several tabs otherwise has no way to add a pin anywhere but the narrow strip past the
+            // last tab, which always targets whichever tab happened to be active.
+            menu.Items.Add(Item("Add folder...", () => { var p = PickFolder(); if (!string.IsNullOrEmpty(p)) App.Groups.AddPin(tab, p); }));
+            menu.Items.Add(Item("Add file...", () => { var p = PickFile(); if (!string.IsNullOrEmpty(p)) App.Groups.AddPin(tab, p); }));
+            menu.Items.Add(new Separator());
             menu.Items.Add(Item("Move tab left", () => App.Groups.MoveTab(group, tab, -1)));
             menu.Items.Add(Item("Move tab right", () => App.Groups.MoveTab(group, tab, +1)));
             menu.Items.Add(Item("Make tab its own group", () => App.Groups.MoveTabToNewGroup(group, tab)));
             menu.Items.Add(new Separator());
-            menu.Items.Add(Item("Delete tab", () => App.Groups.DeleteTab(group, tab)));
+            menu.Items.Add(Item("Delete tab", () => ConfirmDeleteTab(group, tab)));
             return menu;
         }
 
@@ -783,7 +789,13 @@ namespace QuickPane.UI
             try
             {
                 if (pin == null || string.IsNullOrEmpty(pin.LinkPath)) return;
-                var typed = TextPrompt.Ask("Edit path", pin.TargetPath ?? "");
+                // IsFile comes from the background probe cache (see LoadPins), never a live disk check
+                // here, so choosing the picker never risks the same input-queue freeze that drove that
+                // design in the first place.
+                Func<string, string> browse = pin.IsFile
+                    ? (Func<string, string>)BrowseForFile
+                    : BrowseForFolder;
+                var typed = TextPrompt.Ask("Edit path", pin.TargetPath ?? "", browse);
                 if (typed == null) return;
                 typed = typed.Trim().Trim('"');
                 if (typed.Length == 0) return;
@@ -850,6 +862,19 @@ namespace QuickPane.UI
                 if (r != WinForms.DialogResult.Yes) return;
             }
             App.Groups.DeleteGroup(group);
+        }
+
+        private void ConfirmDeleteTab(PinnedGroup group, PinnedTab tab)
+        {
+            int count = tab.Items.Count;
+            if (count > 0)
+            {
+                var r = WinForms.MessageBox.Show(
+                    "Delete this tab and its " + count + " pin(s)?", "QuickPane",
+                    WinForms.MessageBoxButtons.YesNo, WinForms.MessageBoxIcon.Warning);
+                if (r != WinForms.DialogResult.Yes) return;
+            }
+            App.Groups.DeleteTab(group, tab);
         }
 
         private void RenameGroupOrTab(PinnedGroup group, PinnedTab tab)
@@ -968,19 +993,53 @@ namespace QuickPane.UI
             return mi;
         }
 
-        private static string PickFolder()
+        private static string PickFolder(string startFolder = null)
         {
-            using (var dlg = new WinForms.FolderBrowserDialog())
-            {
-                dlg.Description = "Pick a folder to pin";
-                return dlg.ShowDialog() == WinForms.DialogResult.OK ? dlg.SelectedPath : null;
-            }
+            return FolderPicker.Pick("Pick a folder to pin", startFolder);
         }
 
         private static string PickFile()
         {
             var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Pick a file to pin" };
             return dlg.ShowDialog() == true ? dlg.FileName : null;
+        }
+
+        // ---- Edit path Browse callbacks ----
+        private static string BrowseForFolder(string current)
+        {
+            return FolderPicker.Pick("Pick a folder", NearestExistingFolder(current));
+        }
+
+        private static string BrowseForFile(string current)
+        {
+            var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Pick a file" };
+            // GetDirectoryName throws on an empty string or on stray invalid characters, both of which
+            // the text box can hold if the user cleared it or typed something odd before clicking
+            // Browse, so the parent folder is computed defensively rather than trusted outright.
+            string parent = null;
+            try { parent = System.IO.Path.GetDirectoryName(current ?? string.Empty); } catch { }
+            var dir = NearestExistingFolder(parent);
+            if (!string.IsNullOrEmpty(dir)) dlg.InitialDirectory = dir;
+            return dlg.ShowDialog() == true ? dlg.FileName : null;
+        }
+
+        /// <summary>Walk up from a path that may no longer exist to the nearest ancestor folder that
+        /// does, so a picker opens somewhere useful instead of wherever it defaults to. Skipped for a
+        /// UNC path: probing an unreachable share one directory at a time can hang far longer than a
+        /// user will wait for a dialog to open.</summary>
+        private static string NearestExistingFolder(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+            if (path.StartsWith(@"\\", StringComparison.Ordinal))
+                return System.IO.Directory.Exists(path) ? path : null;
+            try
+            {
+                var dir = path;
+                while (!string.IsNullOrEmpty(dir) && !System.IO.Directory.Exists(dir))
+                    dir = System.IO.Path.GetDirectoryName(dir);
+                return string.IsNullOrEmpty(dir) ? null : dir;
+            }
+            catch { return null; }
         }
 
         private static void OpenPinFile(PinnedFolder pin)

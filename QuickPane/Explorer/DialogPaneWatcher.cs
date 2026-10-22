@@ -108,10 +108,25 @@ namespace QuickPane.Explorer
 
         private static string CurrentMode()
         {
-            string m = App.Settings != null ? (App.Settings.Current.Mode ?? "inside") : "inside";
-            m = m.Trim().ToLowerInvariant();
-            if (m != "beside" && m != "off") m = "inside";
-            return m;
+            string windowMode = App.Settings != null ? App.Settings.Current.Mode : null;
+            string dialogMode = App.Settings != null ? App.Settings.Current.DialogMode : null;
+            return ResolveMode(windowMode, dialogMode);
+        }
+
+        /// <summary>Pure decision behind CurrentMode, pulled out so the "File dialogs" setting
+        /// ships with a test that needs no window, no Settings, and no dialog on screen. "beside" and
+        /// "off" on the dialog setting override the window mode for dialogs only; anything else
+        /// (including "same", unset, or an unrecognized value) falls back to the window mode, which is
+        /// today's behavior for anyone who predates this setting.</summary>
+        internal static string ResolveMode(string windowMode, string dialogMode)
+        {
+            string w = (windowMode ?? "").Trim().ToLowerInvariant();
+            w = (w == "beside") ? "beside" : (w == "off") ? "off" : "inside";
+
+            string d = (dialogMode ?? "").Trim().ToLowerInvariant();
+            if (d == "beside") return "beside";
+            if (d == "off") return "off";
+            return w;
         }
 
         private void OnSettings(object sender, EventArgs e)

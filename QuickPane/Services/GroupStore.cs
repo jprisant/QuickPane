@@ -429,7 +429,7 @@ namespace QuickPane.Services
             Try(() =>
             {
                 if (group.Tabs.Count <= 1) { DeleteGroup(group); return; } // last tab: drop the group
-                if (Directory.Exists(tab.FolderPath)) Directory.Delete(tab.FolderPath, true);
+                Recycle(tab.FolderPath); // same undo path as DeleteGroup, not an outright erase
             });
         }
 
