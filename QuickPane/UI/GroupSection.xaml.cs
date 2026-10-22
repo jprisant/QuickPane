@@ -774,7 +774,7 @@ namespace QuickPane.UI
             menu.Items.Add(Item("Move tab right", () => App.Groups.MoveTab(group, tab, +1)));
             menu.Items.Add(Item("Make tab its own group", () => App.Groups.MoveTabToNewGroup(group, tab)));
             menu.Items.Add(new Separator());
-            menu.Items.Add(Item("Delete tab", () => App.Groups.DeleteTab(group, tab)));
+            menu.Items.Add(Item("Delete tab", () => ConfirmDeleteTab(group, tab)));
             return menu;
         }
 
@@ -856,6 +856,19 @@ namespace QuickPane.UI
                 if (r != WinForms.DialogResult.Yes) return;
             }
             App.Groups.DeleteGroup(group);
+        }
+
+        private void ConfirmDeleteTab(PinnedGroup group, PinnedTab tab)
+        {
+            int count = tab.Items.Count;
+            if (count > 0)
+            {
+                var r = WinForms.MessageBox.Show(
+                    "Delete this tab and its " + count + " pin(s)?", "QuickPane",
+                    WinForms.MessageBoxButtons.YesNo, WinForms.MessageBoxIcon.Warning);
+                if (r != WinForms.DialogResult.Yes) return;
+            }
+            App.Groups.DeleteTab(group, tab);
         }
 
         private void RenameGroupOrTab(PinnedGroup group, PinnedTab tab)
