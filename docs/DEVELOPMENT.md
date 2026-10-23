@@ -91,11 +91,11 @@ The `upstream` remote points at `lso2/QuickPane`, and `origin` points at this fo
 ## Releasing the fork
 
 1. Set the version in `QuickPane/Properties/AssemblyInfo.cs` (both attributes) and in `Installer.iss`. Fork versions add a fourth number to the upstream base, for example 3.10.0.1.
-2. Add a `CHANGELOG.md` entry with Added, Changed, and Fixed sections, linking upstream issues where they exist.
+2. Add a `CHANGELOG.md` entry with Added, Changed, and Fixed sections, linking upstream issues where they exist. When a release needs more than its changelog section, write a full release document in `docs/releases/<version>.md`, as for 3.10.0.2, the first published fork release.
 3. Merge to `main` through a pull request with green CI.
 4. Build from `main` with `scripts/test.ps1`.
 5. Zip `QuickPane.exe` and `QuickPane.exe.config`, and record the SHA-256 of each file in `SHA256SUMS.txt`.
-6. Create a **draft** GitHub release for tag `v<version>` with the zip, the checksums, and notes taken from the changelog. A draft stays private and creates no tag. Check that the draft's tag name is `v<version>`, not `untagged-...`, or publishing creates the wrong tag.
+6. Create a **draft** GitHub release for tag `v<version>` with the zip, the checksums, and notes taken from `docs/releases/<version>.md` when it exists, or otherwise from the changelog. A draft stays private and creates no tag. Check that the draft's tag name is `v<version>`, not `untagged-...`, or publishing creates the wrong tag.
 7. Test the build on a real desktop, then publish the draft as a full release, not a pre-release. The in-app update check reads `releases/latest`, which never returns a pre-release.
 
 The binaries are not code-signed. To install a fork build over an installed copy, close QuickPane with `--exit` and replace `QuickPane.exe` in `%LOCALAPPDATA%\QuickPane`. Add/Remove Programs keeps showing the installed version until an installer built from this fork is used.
