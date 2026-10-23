@@ -1,6 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## [3.10.0.2] - 2026-10-22
+
+This release includes every change listed under 3.10.0.1 in [CHANGELOG.md](https://github.com/jprisant/QuickPane/blob/main/CHANGELOG.md), plus the fixes below.
 
 ### Fixed
 - In a Windows 11 Explorer window with more than one tab, only one tab made room for the pane. Every other tab stayed at full width, so either the pane covered Explorer's navigation pane or the tab covered the pane. Every tab now makes room, including tabs opened later, and the layout keeps working after the first tab is closed ([#4](https://github.com/jprisant/QuickPane/issues/4), [lso2/QuickPane#3](https://github.com/lso2/QuickPane/issues/3)).
