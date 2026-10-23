@@ -10,7 +10,7 @@ This release includes every change listed under 3.10.0.1 in [CHANGELOG.md](https
 
 ## [3.10.0.1] - 2026-10-21
 
-The first release of the jprisant/QuickPane fork, built on upstream 3.10.0. Fork releases add a fourth version number to the upstream version they build on.
+Never published as a release. Its changes first shipped in 3.10.0.2, the first published release of the jprisant/QuickPane fork. Both build on upstream 3.10.0. Fork releases add a fourth version number to the upstream version they build on.
 
 ### Added
 - A "File dialogs" setting on the Pane tab, so the pane in Open and Save dialogs can follow Explorer windows, sit beside the dialog, or stay off.
